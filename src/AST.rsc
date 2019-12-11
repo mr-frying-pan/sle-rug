@@ -12,6 +12,7 @@ data AForm(loc src = |tmp:///|)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
+  = q(str label, str name, AType t, AExpr v)
   ; 
 
 data AExpr(loc src = |tmp:///|)
@@ -21,4 +22,8 @@ data AExpr(loc src = |tmp:///|)
 data AId(loc src = |tmp:///|)
   = id(str name);
 
-data AType(loc src = |tmp:///|);
+data AType(loc src = |tmp:///|)
+  = tint()
+  | tstr()
+  | tbool()
+  | tunknown();
