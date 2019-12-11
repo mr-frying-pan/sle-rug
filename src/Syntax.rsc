@@ -32,25 +32,29 @@ syntax Assignment
 // TODO: priority rules and associativity
 syntax Expr 
   = Id \ "true" \ "false" // true/false are reserved keywords.
-  | Id "+" Id
-  | Id "-" Id
-  | Id "*" Id
-  | Id "/" Id
-  | (Id | Bool) "&&" (Id | Bool)
-  | (Id | Bool) "||" (Id | Bool)
-  | "!" (Id | Bool)
-  | (Id | Int) "\>" (Id | Int)
-  | (Id | Int) "\<" (Id | Int)
-  | (Id | Int) "\<=" (Id | Int)
-  | (Id | Int) "\>=" (Id | Int)
-  | (Id | Int | Bool | Str) "==" (Id | Int | Bool | Str)
-  | (Id | Int | Bool | Str) "!=" (Id | Int | Bool | Str) 
+  | Int
+  | Bool
+  | Str
+  | "(" Expr ")"
+  > "!" Expr
+  > left Expr "*" Expr
+  | left Expr "/" Expr
+  > left Expr "+" Expr
+  | left Expr "-" Expr
+  > left Expr "&&" Expr
+  > left Expr "||" Expr
+  > left Expr "\>" Expr
+  | left Expr "\<" Expr
+  | left Expr "\<=" Expr
+  | left Expr "\>=" Expr
+  > left Expr "==" Expr
+  | left Expr "!=" Expr 
   ;
   
 syntax Type
   = "integer" | "str" | "boolean";
   
-lexical Str = "\"" [A-Za-z0-9,.?!:;\'\\s]* "\"";
+lexical Str = "\"" [A-Za-z0-9,.?!:;\'\ ]* "\"";
 
 lexical Int 
   = [0-9]+;
