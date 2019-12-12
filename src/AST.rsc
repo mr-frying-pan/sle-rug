@@ -9,11 +9,11 @@ module AST
 
 data AForm(loc src = |tmp:///|)
   = form(str name, list[AQuestion] questions)
-  ; 
+  ;
 
 data AQuestion(loc src = |tmp:///|)
   = q(str label, str name, AType t, AExpr v)
-  ; 
+  ;
 
 data AExpr(loc src = |tmp:///|)
   = ref(AId id)

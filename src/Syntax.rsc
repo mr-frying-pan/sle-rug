@@ -13,7 +13,7 @@ start syntax Form
 syntax Question
   = Str Id ":" Type Assignment?
   | Block
-  | "if" "(" Id ")" Block Else?
+  | "if" "(" Expr ")" Block Else?
   ;
   
 syntax Block
