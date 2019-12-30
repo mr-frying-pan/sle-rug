@@ -5,6 +5,7 @@ import AST;
 
 import ParseTree;
 import String;
+import IO;
 
 /*
  * Implement a mapping from concrete syntax trees (CSTs) to abstract syntax trees (ASTs)
@@ -18,23 +19,63 @@ import String;
 
 AForm cst2ast(start[Form] sf) {
   Form f = sf.top; // remove layout before and after form
-  return form("", [], src=f@\loc); 
+  return cst2ast(f);
 }
 
-AQuestion cst2ast(Question q) {
-  throw "Not yet implemented";
+AForm cst2ast((Form)`form <Id x> { <Question* qs> }`) {
+	return form("<x>", [cst2ast(q) | Question q <- qs]);
 }
 
-AExpr cst2ast(Expr e) {
-  switch (e) {
-    case (Expr)`<Id x>`: return ref("<x>", src=x@\loc);
-    
-    // etc.
-    
-    default: throw "Unhandled expression: <e>";
+AQuestion cst2ast(Question question) {
+  switch(question) {
+  	case (Question)`<Str label> <Id name> : <Type t>`:
+		return q("<label>", id("<name>", src=name@\loc), cst2ast(t));
+  	case (Question)`<Str label> <Id name> : <Type t> = <Expr e>`:
+  		return cq("<label>", id("<name>", src=name@\loc), cst2ast(t), cst2ast(e));
+  	case (Question)`if ( <Expr bexpr> ) <Block trueBlock>`:
+  		return cond(cst2ast(bexpr), cst2ast(trueBlock));
+  	case (Question)`if ( <Expr bexpr> ) <Block trueBlock> else <Block falseBlock>`:
+  		return condElse(cst2ast(bexpr), cst2ast(trueBlock), cst2ast(falseBlock));
+  	default: throw "Unrecognized question: <q>";
   }
 }
 
 AType cst2ast(Type t) {
-  throw "Not yet implemented";
+  switch(t){
+  case (Type)`integer`: return tint();
+  case (Type)`boolean`: return tbool();
+  case (Type)`str`: return tstr();
+  default: return tunknown();
+  }
 }
+
+AExpr cst2ast(Expr e) {
+  switch (e) {
+    case (Expr)`<Id x>`: return ref(id("<x>", src=x@\loc));
+    case (Expr)`<Int i>`: return ival(toInt("<i>"));
+    case (Expr)`<Bool b>`: return bval("<b>" == "true");
+    case (Expr)`<Str s>`: return sval("<s>");
+	case (Expr)`( <Expr ex> )`: return cst2ast(ex);
+	case (Expr)`! <Expr ex>`: return neg(cst2ast(ex));
+    case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> + <Expr rhs>`: return add(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> - <Expr rhs>`: return sub(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> \> <Expr rhs>`: return gt(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> \< <Expr rhs>`: return lt(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> \>= <Expr rhs>`: return geq(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> \<= <Expr rhs>`: return leq(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> && <Expr rhs>`: return and(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> || <Expr rhs>`: return or(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> == <Expr rhs>`: return eq(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Expr lhs> != <Expr rhs>`: return neq(cst2ast(lhs), cst2ast(rhs));
+    default: throw "Unhandled expression: <e>";
+  }
+}
+
+list[AQuestion] cst2ast((Block)`{ <Question* qs> }`) = [cst2ast(q) | q <- qs];
+
+
+
+
+

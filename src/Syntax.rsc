@@ -2,6 +2,7 @@ module Syntax
 
 extend lang::std::Layout; // |std:///lang/std/Layout.rsc|;
 extend lang::std::Id;
+
 /*
  * Concrete syntax of QL
  */
@@ -25,38 +26,43 @@ syntax Else
 syntax Assignment
   = "=" Expr;
 
-// TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
-// Think about disambiguation using priorities and associativity
-// and use C/Java style precedence rules (look it up on the internet)
-
-// TODO: priority rules and associativity
 syntax Expr 
-  = Id \ "true" \ "false" // true/false are reserved keywords.
+  = Id \ Kwds
   | Int
   | Bool
   | Str
   | "(" Expr ")"
   > "!" Expr
-  > left Expr "*" Expr
-  | left Expr "/" Expr
-  > left Expr "+" Expr
-  | left Expr "-" Expr
+  > left
+  ( Expr "*" Expr
+  | Expr "/" Expr
+  )
+  > left 
+  ( Expr "+" Expr
+  | Expr "-" Expr
+  )
+  > left
+  ( Expr "\>" Expr
+  | Expr "\<" Expr
+  | Expr "\<=" Expr
+  | Expr "\>=" Expr
+  )
   > left Expr "&&" Expr
   > left Expr "||" Expr
-  > left Expr "\>" Expr
-  | left Expr "\<" Expr
-  | left Expr "\<=" Expr
-  | left Expr "\>=" Expr
-  > left Expr "==" Expr
-  | left Expr "!=" Expr 
+  > left
+  ( Expr "==" Expr
+  | Expr "!=" Expr
+  )
   ;
   
 syntax Type
   = "integer" | "str" | "boolean";
   
-lexical Str = "\"" [A-Za-z0-9,.?!:;\'\ ]* "\"";
+lexical Str = "\"" ![\"]* "\"";
 
 lexical Int 
-  = [0-9]+;
+  = "-"?[0-9]+;
 
 lexical Bool = "true" | "false";
+
+keyword Kwds = "if" | "else" | "true" | "false";
