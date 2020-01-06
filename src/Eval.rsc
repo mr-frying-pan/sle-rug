@@ -2,6 +2,7 @@ module Eval
 
 import AST;
 import Resolve;
+import String;
 
 /*
  * Implement big-step semantics for QL
@@ -27,9 +28,14 @@ data Input
 // produce an environment which for each question has a default value
 // (e.g. 0 for int, "" for str etc.)
 VEnv initialEnv(AForm f) {
-  return ();
+  VEnv initVenv = ();
+  visit (f) {
+  case q(str _, id(str name, src=loc l), "integer"): initVenv += (name : vint(0));
+  case q(str _, id(str name, src=loc l), "boolean"): initVenv += (name : vbool(false));
+  case q(str _, id(str name, src=loc l), "str"): initVenv += (name : vstr(""));
+  }
+  return initVenv;
 }
-
 
 // Because of out-of-order use and declaration of questions
 // we use the solve primitive in Rascal to find the fixpoint of venv.
@@ -51,9 +57,23 @@ VEnv eval(AQuestion q, Input inp, VEnv venv) {
 
 Value eval(AExpr e, VEnv venv) {
   switch (e) {
-    case ref(str x): return venv[x];
-    
-    // etc.
+    case ival(str n): return vint(toInt(n));
+    case bval(str b): return vbool(b == "true");
+    case sval(str s): return vstr(s);
+    case ref(AId x): return venv[x.name];
+    case neg(AExpr e): return vbool(!eval(e, venv).b);
+    case mul(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n * eval(rhs, venv).n);
+    case div(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n / eval(rhs, venv).n);
+    case add(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n + eval(rhs, venv).n);
+    case sub(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n - eval(rhs, venv).n);
+    case gt(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n > eval(rhs, venv).n);
+    case lt(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n < eval(rhs, venv).n);
+    case geq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n >= eval(rhs, venv).n);
+    case leq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n <= eval(rhs, venv).n);
+    case and(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b && eval(rhs, venv).b);
+    case or(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b || eval(rhs, venv).b);
+    case eq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) == eval(rhs, venv));
+    case neq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) != eval(rhs, venv));
     
     default: throw "Unsupported expression <e>";
   }
