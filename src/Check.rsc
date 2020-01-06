@@ -79,6 +79,10 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
   tOfE = typeOf(e, tenv, useDef);
   switch (e) {
+  	case ival(str n, src = loc l):
+  	  msgs += { error("Incompatible expression type", l) | /(-)?[0-9]+/ := n };
+  	case bval(str b, src = loc l):
+  	  msgs += { error("Incompatible expression type", l) | b != "true" && b != "false" };
     case ref(id(str name, src = loc u)):
       msgs += { error("Undefined question", u) | useDef[u] == {} };
 	case neg(AExpr e):
@@ -106,6 +110,8 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
 	// Always type correct. If types do not match the result of the comparison is false.
 	// case eq(AExpr lhs, AExpr rhs):
 	// case neq(AExpr lhs, AExpr rhs):
+	// Always type correct?
+	// case sval(str s, src = loc l):
   }
   
   return msgs; 

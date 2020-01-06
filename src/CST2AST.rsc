@@ -4,7 +4,6 @@ import Syntax;
 import AST;
 
 import ParseTree;
-import String;
 
 /*
  * Implement a mapping from concrete syntax trees (CSTs) to abstract syntax trees (ASTs)
@@ -48,10 +47,10 @@ AQuestion cst2ast(Question question) {
 AExpr cst2ast(Expr e) {
   switch (e) {
     case (Expr)`<Id x>`: return ref(id("<x>", src=x@\loc));
-    case (Expr)`<Int i>`: return ival(toInt("<i>"), src=e@\loc);
-    case (Expr)`<Bool b>`: return bval("<b>" == "true", src=e@\loc);
+    case (Expr)`<Int i>`: return ival("<i>", src=e@\loc);
+    case (Expr)`<Bool b>`: return bval("<b>", src=e@\loc);
     case (Expr)`<Str s>`: return sval("<s>", src=e@\loc);
-	case (Expr)`( <Expr ex> )`: return cst2ast(ex, src=e@\loc);
+	case (Expr)`( <Expr ex> )`: return cst2ast(ex);
 	case (Expr)`! <Expr ex>`: return neg(cst2ast(ex), src=e@\loc);
     case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
