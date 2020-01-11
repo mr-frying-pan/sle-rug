@@ -5,7 +5,6 @@ import AST;
 
 import ParseTree;
 import String;
-import IO;
 
 /*
  * Implement a mapping from concrete syntax trees (CSTs) to abstract syntax trees (ASTs)
@@ -29,46 +28,43 @@ AForm cst2ast((Form)`form <Id x> { <Question* qs> }`) {
 AQuestion cst2ast(Question question) {
   switch(question) {
   	case (Question)`<Str label> <Id name> : <Type t>`:
-		return q("<label>", id("<name>", src=name@\loc), cst2ast(t));
+  		// ugly hack but only because adding quotes above produces a
+  		// Syntax error: concrete syntax fragment (or something very similar)
+  		// and I do not know what is wrong with that
+		return q(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>", src=name@\loc), "<t>");
   	case (Question)`<Str label> <Id name> : <Type t> = <Expr e>`:
-  		return cq("<label>", id("<name>", src=name@\loc), cst2ast(t), cst2ast(e));
+  		// same as above
+  		return cq(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>", src=name@\loc), "<t>", cst2ast(e));
   	case (Question)`if ( <Expr bexpr> ) <Block trueBlock>`:
-  		return cond(cst2ast(bexpr), cst2ast(trueBlock));
+  		return cond(cst2ast(bexpr), cst2ast(trueBlock), src=bexpr@\loc);
   	case (Question)`if ( <Expr bexpr> ) <Block trueBlock> else <Block falseBlock>`:
-  		return condElse(cst2ast(bexpr), cst2ast(trueBlock), cst2ast(falseBlock));
+  		return condElse(cst2ast(bexpr), cst2ast(trueBlock), cst2ast(falseBlock), src=bexpr@\loc);
+  	case (Question)`{ <Question* qs> }`:
+  		return block([cst2ast(q) | q <- qs]);
   	default: throw "Unrecognized question: <q>";
-  }
-}
-
-AType cst2ast(Type t) {
-  switch(t){
-  case (Type)`integer`: return tint();
-  case (Type)`boolean`: return tbool();
-  case (Type)`str`: return tstr();
-  default: return tunknown();
   }
 }
 
 AExpr cst2ast(Expr e) {
   switch (e) {
     case (Expr)`<Id x>`: return ref(id("<x>", src=x@\loc));
-    case (Expr)`<Int i>`: return ival(toInt("<i>"));
-    case (Expr)`<Bool b>`: return bval("<b>" == "true");
-    case (Expr)`<Str s>`: return sval("<s>");
-	case (Expr)`( <Expr ex> )`: return cst2ast(ex);
-	case (Expr)`! <Expr ex>`: return neg(cst2ast(ex));
-    case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> + <Expr rhs>`: return add(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> - <Expr rhs>`: return sub(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> \> <Expr rhs>`: return gt(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> \< <Expr rhs>`: return lt(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> \>= <Expr rhs>`: return geq(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> \<= <Expr rhs>`: return leq(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> && <Expr rhs>`: return and(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> || <Expr rhs>`: return or(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> == <Expr rhs>`: return eq(cst2ast(lhs), cst2ast(rhs));
-    case (Expr)`<Expr lhs> != <Expr rhs>`: return neq(cst2ast(lhs), cst2ast(rhs));
+    case (Expr)`<Int i>`: return ival(toInt("<i>"), src=e@\loc);
+    case (Expr)`<Bool b>`: return bval("<b>" == "true", src=e@\loc);
+    case (Expr)`<Str s>`: return sval("<s>", src=e@\loc);
+	case (Expr)`( <Expr ex> )`: return cst2ast(ex, src=e@\loc);
+	case (Expr)`! <Expr ex>`: return neg(cst2ast(ex), src=e@\loc);
+    case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> + <Expr rhs>`: return add(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> - <Expr rhs>`: return sub(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> \> <Expr rhs>`: return gt(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> \< <Expr rhs>`: return lt(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> \>= <Expr rhs>`: return geq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> \<= <Expr rhs>`: return leq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> && <Expr rhs>`: return and(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> || <Expr rhs>`: return or(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> == <Expr rhs>`: return eq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case (Expr)`<Expr lhs> != <Expr rhs>`: return neq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     default: throw "Unhandled expression: <e>";
   }
 }
