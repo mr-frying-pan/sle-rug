@@ -46,13 +46,48 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
-  return (); 
+  for (/AQuestion q := f.questions) {
+    venv = eval(q, inp, venv);
+  }
+  return venv;
 }
+
 
 VEnv eval(AQuestion q, Input inp, VEnv venv) {
   // evaluate conditions for branching,
   // evaluate inp and computed questions to return updated VEnv
-  return (); 
+  switch (q) {
+  	case q(str l, AId id, AType t): {
+      if (id.name == inp.question) {
+        return (venv + (id: inp.\value));
+      }
+    }
+    case q(str l, AId id, AType t, AExpr expr): {
+        return (venv + (id: eval(expr, venv)));
+    }
+    case cond(AExpr expr, list[AQuestion] questions): {
+    	if (eval(expr, venv).b) {
+        	for (/AQuestion q := questions) {
+          		venv = eval(q, inp, venv);
+        	}
+        }
+    	return venv;	
+    	}
+    case condElse(AExpr expr, list[AQuestion] questionsIf, list[AQuestion] questionsElse): {
+    	if (eval(Expression, venv).b) {
+    		for (/AQuestion q := questionsIf) {
+    			venv = eval(q, inp, venv);
+    		}
+    	} else {
+    		for (/AQuestion q := questionsElse) {
+    			venv = eval(q, inp, venv);
+    		}
+    	}
+    	return venv;
+    }
+    default: throw "Unsupported expression <q>";
+    }
+  return ();
 }
 
 Value eval(AExpr e, VEnv venv) {
