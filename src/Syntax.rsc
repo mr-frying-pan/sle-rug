@@ -1,6 +1,6 @@
 module Syntax
 
-extend lang::std::Layout; // |std:///lang/std/Layout.rsc|;
+extend lang::std::Layout;
 extend lang::std::Id;
 
 /*
@@ -10,7 +10,6 @@ extend lang::std::Id;
 start syntax Form 
   = "form" Id "{" Question* "}"; 
 
-// TODO: question, computed question, block, if-then-else, if-then
 syntax Question
   = Str Id ":" Type Assignment?
   | Block
