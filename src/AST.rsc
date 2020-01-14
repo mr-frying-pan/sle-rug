@@ -14,17 +14,17 @@ data AForm(loc src = |tmp:///|)
   ;
 
 data AQuestion(loc src = |tmp:///|)
-  = q(str label, AId name, str t)
-  | cq(str label, AId name, str t, AExpr e)
+  = q(str label, AId name, str t, loc src = |tmp:///|)
+  | cq(str label, AId name, str t, AExpr e, loc src = |tmp:///|)
   | cond(AExpr check, list[AQuestion] trueCase, loc src = |tmp:///|)
   | condElse(AExpr check, list[AQuestion] trueCase, list[AQuestion] falseCase, loc src = |tmp:///|)
   | block(list[AQuestion])
   ;
 
 data AExpr(loc src = |tmp:///|)
-  = ref(AId id)
-  | ival(int i, loc src = |tmp:///|)
-  | bval(bool b, loc src = |tmp:///|)
+  = ref(AId id, loc src = |tmp:///|)
+  | ival(str i, loc src = |tmp:///|)
+  | bval(str b, loc src = |tmp:///|)
   | sval(str s, loc src = |tmp:///|)
   | neg(AExpr e, loc src = |tmp:///|)
   | mul(AExpr lhs, AExpr rhs, loc src = |tmp:///|)
@@ -42,7 +42,7 @@ data AExpr(loc src = |tmp:///|)
   ;
 
 data AId(loc src = |tmp:///|)
-  = id(str name, loc src = |tmp:///|);
+  = id(str name);
 
 
 
