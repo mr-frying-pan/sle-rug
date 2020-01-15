@@ -60,7 +60,7 @@ syntax Type
 lexical Str = "\"" ![\"]* "\"";
 
 lexical Int 
-  = "-"?[0-9]+;
+  = "-"?[1-9][0-9]*;
 
 lexical Bool = "true" | "false";
 
