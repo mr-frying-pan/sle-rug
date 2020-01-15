@@ -44,7 +44,7 @@ list[AQuestion] flatten(condElse(AExpr c, list[AQuestion] trueCase, list[AQuesti
   + [*flatten(q, and(prevCheck, neg(c))) | q <- falseCase];
 
 list[AQuestion] flatten(block(list[AQuestion] qs), AExpr prevCheck)
-  = [*flatten(q, prevCheck) | q <- qs];
+  = [block([*flatten(q, prevCheck) | q <- qs])];
 
 list[AQuestion] flatten(AQuestion q, AExpr prevCheck)
   = [cond(prevCheck, [q])];
@@ -56,37 +56,54 @@ list[AQuestion] flatten(AQuestion q, AExpr prevCheck)
  *
  */
  
-start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   for(<loc use, loc def> <- useDef) {
-     if(use == useOrDef) {
-       return renameUse(f, use, newName, useDef);
-     }
-     else if(def == useOrDef) {
-       return renameDef(f, def, newName, useDef);
-     }
-   }
-   return f;
+start[Form] rename(start[Form] f, loc useOrDef, str newName, RefGraph refs) {
+  if(<useOrDef, _> <- refs[0]) {
+    return renameUse(f, useOrDef, newName, refs);
+  }
+  if(<_, useOrDef> <- refs[1]) {
+    return renameDef(f, useOrDef, newName, refs);
+  }
+  return f;
 }
  
-start[Form] renameUse(start[Form] f, loc use, str newName, UseDef useDef) {
+start[Form] renameUse(start[Form] f, loc use, str newName, RefGraph refs) {
    Id newX = [Id] newName;
    return visit(f) {
    case (Expr)`<Id x>`
      => (Expr)`<Id newX>`
        when
-         <use, d> <- useDef,
-         <l, d> <- useDef,
+         <use, loc d> <- refs[2],
+         <l, d> <- refs[2],
          l == x@\loc
+   case (Question)`<Str _> <Id x> : <Type _>`
+     => (Question)`<Str _> <Id newX> : <Type _>`
+       when
+         <use, loc d> <- refs[2],
+         d == x@\loc
+   case (Question)`<Str _> <Id x> : <Type _> = <Expr _>`
+     => (Question)`<Str _> <Id newX> : <Type _> = <Expr _>`
+       when
+         <use, loc d> <- refs[2],
+         d == x@\loc
    };
 }
  
-start[Form] renameDef(start[Form] f, loc def, str newName, UseDef useDef) {
+start[Form] renameDef(start[Form] f, loc def, str newName, RefGraph refs) {
    Id newX = [Id]newName;
    return visit(f) {
-   case (Question)`<Str _> <Id x> : <Type _>` => (Question)`<Str _> <Id newX> : <Type _>`
-     when
-       <u, def> <- useDef,
-       u == x@\loc
+   case (Question)`<Str _> <Id x> : <Type _>`
+     => (Question)`<Str _> <Id newX> : <Type _>`
+       when
+         def == x@\loc
+   case (Question)`<Str _> <Id x> : <Type _> = <Expr _>`
+     => (Question)`<Str _> <Id newX> : <Type _> = <Expr _>`
+       when
+         def == x@\loc
+   case (Expr)`<Id x>`
+     => (Expr)`<Id newX>`
+       when
+         <l, def> <- refs[2],
+         l == x@\loc
    };
 }
  
