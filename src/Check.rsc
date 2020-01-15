@@ -103,9 +103,9 @@ set[Message] check(neg(AExpr e), TEnv tenv, UseDef useDef) {
 set[Message] check(mul(AExpr lhs, AExpr rhs, src = loc _), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("MULlhs: Incompatible expression type: expected integer, got <toStr(tlhs)> ", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)> ", lhs.src)
           | tlhs != tint() }
-      + { error("MULrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -114,9 +114,9 @@ set[Message] check(mul(AExpr lhs, AExpr rhs, src = loc _), TEnv tenv, UseDef use
 set[Message] check(div(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("DIVlhs: Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
           | tlhs != tint() }
-      + { error("DIVrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -125,9 +125,9 @@ set[Message] check(div(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(add(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("ADDlhs: Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
           | tlhs != tint() }
-      + { error("ADDrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -136,9 +136,9 @@ set[Message] check(add(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(sub(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("SUBlhs: Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
           | tlhs != tint() }
-      + { error("SUBrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -147,9 +147,9 @@ set[Message] check(sub(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(gt(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("GTlhs: Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
           | tlhs != tint() }
-      + { error("GTrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -158,9 +158,9 @@ set[Message] check(gt(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(lt(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("LTlhs: Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
           | tlhs != tint() }
-      + { error("LTrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -169,9 +169,9 @@ set[Message] check(lt(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(geq(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("GEQlhs: Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
           | tlhs != tint() }
-      + { error("GEQrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -180,9 +180,9 @@ set[Message] check(geq(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(leq(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("LEQlhs: Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected integer, got <toStr(tlhs)>", lhs.src)
           | tlhs != tint() }
-      + { error("LEQrhs: Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected integer, got <toStr(trhs)>", rhs.src)
           | trhs != tint() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -191,9 +191,9 @@ set[Message] check(leq(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(and(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("ANDlhs: Incompatible expression type: expected boolean, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected boolean, got <toStr(tlhs)>", lhs.src)
           | tlhs != tbool() }
-      + { error("ANDrhs: Incompatible expression type: expected boolean, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected boolean, got <toStr(trhs)>", rhs.src)
           | trhs != tbool() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
@@ -202,9 +202,9 @@ set[Message] check(and(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
 set[Message] check(or(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) {
  Type tlhs = typeOf(lhs, tenv, useDef);
  Type trhs = typeOf(rhs, tenv, useDef);
- return { error("ORlhs: Incompatible expression type: expected boolean, got <toStr(tlhs)>", lhs.src)
+ return { error("Incompatible expression type: expected boolean, got <toStr(tlhs)>", lhs.src)
           | tlhs != tbool() }
-      + { error("ORrhs: Incompatible expression type: expected boolean, got <toStr(trhs)>", rhs.src)
+      + { error("Incompatible expression type: expected boolean, got <toStr(trhs)>", rhs.src)
           | trhs != tbool() }
       + check(lhs, tenv, useDef)
       + check(rhs, tenv, useDef);
