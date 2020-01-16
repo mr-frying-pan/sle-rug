@@ -11,19 +11,13 @@ start syntax Form
   = "form" Id "{" Question* "}"; 
 
 syntax Question
-  = Str Id ":" Type Assignment?
+  = Str Id ":" Type ("=" Expr)?
   | Block
-  | "if" "(" Expr ")" Block Else?
+  | "if" "(" Expr ")" Block ("else" Block)?
   ;
   
 syntax Block
   = "{" Question* "}";
-
-syntax Else
-  = "else" Block;
-
-syntax Assignment
-  = "=" Expr;
 
 syntax Expr 
   = Id \ Kwds

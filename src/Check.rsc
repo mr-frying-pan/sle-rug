@@ -52,7 +52,7 @@ set[Message] check(cq(str qlabel, id(str qname), str qtype, AExpr qexpr, src = l
     msgs += { warning("Duplicate labels for <qname> and <envname>", envloc) | qname != envname, qlabel == envlabel};
   }
   msgs += { *check(qexpr, tenv, useDef) };
-  msgs += { error("Expression type differs from question type", qexpr.src) | toType(qtype) != typeOf(qexpr, tenv, useDef) }; 
+  msgs += { error("Expression type differs from question type", qloc) | toType(qtype) != typeOf(qexpr, tenv, useDef) }; 
   return msgs;
 }
 
