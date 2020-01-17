@@ -56,19 +56,8 @@ default list[AQuestion] flatten(AQuestion q, AExpr prevCheck)
  * Use the results of name resolution to find the equivalence class of a name.
  *
  */
- 
-//start[Form] hmmm(start[Form] f, loc useOrDef, str newName) {
-//  str empty = "form hmmm {}";
-//  return [start[Form]]empty;
-//}
 
 start[Form] rename(start[Form] f, loc useOrDef, str newName, RefGraph refs) {
-  start[Form] hmm = rename(f.top, useOrDef, newName, refs);
-  println("HMMMMMMMMM");
-  return hmm;
-}
-
-Form rename(Form f, loc useOrDef, str newName, RefGraph refs) {
   if(<useOrDef, _> <- refs[0]) {
     return renameUse(f, useOrDef, newName, refs);
   }
@@ -78,7 +67,7 @@ Form rename(Form f, loc useOrDef, str newName, RefGraph refs) {
   return f;
 }
 
-Form renameUse(Form f, loc use, str newName, RefGraph refs) {
+start[Form] renameUse(start[Form] f, loc use, str newName, RefGraph refs) {
    Id newX = [Id] newName;
    return visit(f) {
    case (Expr)`<Id x>`
@@ -88,30 +77,27 @@ Form renameUse(Form f, loc use, str newName, RefGraph refs) {
          <l, d> <- refs[2],
          l == x@\loc
    case (Question)`<Str l> <Id x> : <Type t>`
-     => (Question)`<Str l> <Id newX> : <Type t>`
+     => (Question)`<Str l> <Id newX> : <Type t>`// here
        when
          <use, loc d> <- refs[2],
          d == x@\loc
    case (Question)`<Str l> <Id x> : <Type t> = <Expr e>`
-     => (Question)`<Str l> <Id newX> : <Type t> = <Expr e>
-     '`
+     => (Question)`<Str l> <Id newX> : <Type t> = <Expr e>`
        when
          <use, loc d> <- refs[2],
          d == x@\loc
    };
 }
  
-Form renameDef(Form f, loc def, str newName, RefGraph refs) {
+start[Form] renameDef(start[Form] f, loc def, str newName, RefGraph refs) {
    Id newX = [Id]newName;
    return visit(f) {
    case (Question)`<Str l> <Id x> : <Type t>`
-     => (Question)`<Str l> <Id newX> : <Type t>
-     '`
+     => (Question)`<Str l> <Id newX> : <Type t>`
        when
          def == x@\loc
    case (Question)`<Str l> <Id x> : <Type t> = <Expr e>`
-     => (Question)`<Str l> <Id newX> : <Type t> = <Expr e>
-     '`
+     => (Question)`<Str l> <Id newX> : <Type t> = <Expr e>`
        when
          def == x@\loc
    case (Expr)`<Id x>`
