@@ -1,6 +1,6 @@
 module Syntax
 
-extend lang::std::Layout; // |std:///lang/std/Layout.rsc|;
+extend lang::std::Layout;
 extend lang::std::Id;
 
 /*
@@ -10,21 +10,16 @@ extend lang::std::Id;
 start syntax Form 
   = "form" Id "{" Question* "}"; 
 
-// TODO: question, computed question, block, if-then-else, if-then
 syntax Question
-  = Str Id ":" Type Assignment?
+  = Str Id ":" Type "=" Expr
+  | Str Id ":" Type 
   | Block
-  | "if" "(" Expr ")" Block Else?
+  | "if" "(" Expr ")" Block
+  | "if" "(" Expr ")" Block "else" Block
   ;
   
 syntax Block
   = "{" Question* "}";
-
-syntax Else
-  = "else" Block;
-
-syntax Assignment
-  = "=" Expr;
 
 syntax Expr 
   = Id \ Kwds
@@ -61,7 +56,7 @@ syntax Type
 lexical Str = "\"" ![\"]* "\"";
 
 lexical Int 
-  = "-"?[0-9]+;
+  = "-"?[1-9][0-9]*;
 
 lexical Bool = "true" | "false";
 

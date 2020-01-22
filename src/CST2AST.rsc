@@ -16,6 +16,8 @@ import String;
  * - See the ref example on how to obtain and propagate source locations.
  */
 
+// this function is never called. What is it's purpose?
+// ok, this function is called by the IDE
 AForm cst2ast(start[Form] sf) {
   Form f = sf.top; // remove layout before and after form
   return cst2ast(f);
@@ -29,7 +31,7 @@ AQuestion cst2ast(Question question) {
   switch(question) {
   	case (Question)`<Str label> <Id name> : <Type t>`:
   		// ugly hack but only because adding quotes above produces a
-  		// Syntax error: concrete syntax fragment (or something very similar)
+  		// Syntax error: concrete syntax fragment
   		// and I do not know what is wrong with that
 		return q(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>"), "<t>", src = name@\loc);
   	case (Question)`<Str label> <Id name> : <Type t> = <Expr e>`:

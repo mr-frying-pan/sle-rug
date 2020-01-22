@@ -4,6 +4,9 @@ import Syntax;
 import Resolve;
 import AST;
 
+import ParseTree;
+import IO;
+
 /* 
  * Transforming QL forms
  */
@@ -11,7 +14,7 @@ import AST;
  
 /* Normalization:
  *  wrt to the semantics of QL the following
- *     q0: "" int; 
+ *     q0: "" int;
  *     if (a) { 
  *        if (b) { 
  *          q1: "" int; 
@@ -25,12 +28,27 @@ import AST;
  *     if (true && a) q2: "" int;
  *
  * Write a transformation that performs this flattening transformation.
- *
  */
  
 AForm flatten(AForm f) {
+  AExpr prevCheck = bval("true");
+  f.questions = [*flatten(q, prevCheck) | q <- f.questions];
   return f; 
 }
+
+list[AQuestion] flatten(cond(AExpr c, list[AQuestion] qs), AExpr prevCheck)
+  = [*flatten(q, and(prevCheck, c)) | q <- qs];
+  
+list[AQuestion] flatten(condElse(AExpr c, list[AQuestion] trueCase, list[AQuestion] falseCase)
+                        , AExpr prevCheck)
+  = [*flatten(q, and(prevCheck, c)) | q <- trueCase]
+  + [*flatten(q, and(prevCheck, neg(c))) | q <- falseCase];
+
+list[AQuestion] flatten(block(list[AQuestion] qs), AExpr prevCheck)
+  = [block([*flatten(q, prevCheck) | q <- qs])];
+
+default list[AQuestion] flatten(AQuestion q, AExpr prevCheck)
+  = [cond(prevCheck, [q])];
 
 /* Rename refactoring:
  *
@@ -38,10 +56,57 @@ AForm flatten(AForm f) {
  * Use the results of name resolution to find the equivalence class of a name.
  *
  */
+
+start[Form] rename(start[Form] f, loc useOrDef, str newName, RefGraph refs) {
+  if(<useOrDef, _> <- refs[0]) {
+    return renameUse(f, useOrDef, newName, refs);
+  }
+  if(<_, useOrDef> <- refs[1]) {
+    return renameDef(f, useOrDef, newName, refs);
+  }
+  return f;
+}
+
+start[Form] renameUse(start[Form] f, loc use, str newName, RefGraph refs) {
+   Id newX = [Id] newName;
+   return visit(f) {
+   case (Expr)`<Id x>`
+     => (Expr)`<Id newX>`
+       when
+         <use, loc d> <- refs[2],
+         <l, d> <- refs[2],
+         l == x@\loc
+   case (Question)`<Str l> <Id x> : <Type t>`
+     => (Question)`<Str l> <Id newX> : <Type t>`// here
+       when
+         <use, loc d> <- refs[2],
+         d == x@\loc
+   case (Question)`<Str l> <Id x> : <Type t> = <Expr e>`
+     => (Question)`<Str l> <Id newX> : <Type t> = <Expr e>`
+       when
+         <use, loc d> <- refs[2],
+         d == x@\loc
+   };
+}
  
- start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   return f; 
- } 
+start[Form] renameDef(start[Form] f, loc def, str newName, RefGraph refs) {
+   Id newX = [Id]newName;
+   return visit(f) {
+   case (Question)`<Str l> <Id x> : <Type t>`
+     => (Question)`<Str l> <Id newX> : <Type t>`
+       when
+         def == x@\loc
+   case (Question)`<Str l> <Id x> : <Type t> = <Expr e>`
+     => (Question)`<Str l> <Id newX> : <Type t> = <Expr e>`
+       when
+         def == x@\loc
+   case (Expr)`<Id x>`
+     => (Expr)`<Id newX>`
+       when
+         <l, def> <- refs[2],
+         l == x@\loc
+   };
+}
  
  
  
