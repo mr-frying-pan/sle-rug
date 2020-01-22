@@ -31,10 +31,10 @@ AQuestion cst2ast(Question question) {
   		// ugly hack but only because adding quotes above produces a
   		// Syntax error: concrete syntax fragment (or something very similar)
   		// and I do not know what is wrong with that
-		return q(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>", src=name@\loc), "<t>");
+		return q(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>"), "<t>", src = name@\loc);
   	case (Question)`<Str label> <Id name> : <Type t> = <Expr e>`:
   		// same as above
-  		return cq(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>", src=name@\loc), "<t>", cst2ast(e));
+  		return cq(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>"), "<t>", cst2ast(e), src=name@\loc);
   	case (Question)`if ( <Expr bexpr> ) <Block trueBlock>`:
   		return cond(cst2ast(bexpr), cst2ast(trueBlock), src=bexpr@\loc);
   	case (Question)`if ( <Expr bexpr> ) <Block trueBlock> else <Block falseBlock>`:
@@ -47,11 +47,11 @@ AQuestion cst2ast(Question question) {
 
 AExpr cst2ast(Expr e) {
   switch (e) {
-    case (Expr)`<Id x>`: return ref(id("<x>", src=x@\loc));
-    case (Expr)`<Int i>`: return ival(toInt("<i>"), src=e@\loc);
-    case (Expr)`<Bool b>`: return bval("<b>" == "true", src=e@\loc);
+    case (Expr)`<Id x>`: return ref(id("<x>"), src=x@\loc);
+    case (Expr)`<Int i>`: return ival("<i>", src=e@\loc);
+    case (Expr)`<Bool b>`: return bval("<b>", src=e@\loc);
     case (Expr)`<Str s>`: return sval("<s>", src=e@\loc);
-	case (Expr)`( <Expr ex> )`: return cst2ast(ex, src=e@\loc);
+	case (Expr)`( <Expr ex> )`: return cst2ast(ex);
 	case (Expr)`! <Expr ex>`: return neg(cst2ast(ex), src=e@\loc);
     case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
