@@ -1,6 +1,7 @@
 module Compile
 
 import AST;
+import Check;
 import Resolve;
 import IO;
 import lang::html5::DOM; // see standard library
@@ -24,9 +25,59 @@ void compile(AForm f) {
 }
 
 HTML5Node form2html(AForm f) {
-  return html();
+return
+	html(
+    	       head(
+        	     title(f.name), meta(charset("utf-8"), name("viewport"), content("width=device-width, initial-scale=1, shrink-to-fit=no")),
+  	             link(\rel("stylesheet"), href("https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css")),
+	 			 script(src("https://code.jquery.com/jquery-3.4.1.slim.min.js")),
+				 script(src("https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js")),
+				 script(src("https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js")),
+				 script(src(f.src[extension="js"].file)) 
+ 	          ),
+  	         body(
+ 	            div(
+ 	              div(
+ 	                [question2html(q) | q <- f.questions]
+ 	              )
+ 	            )
+ 	          )
+ 	        );
+}
+         
+HTML5Node question2html(AQuestion q){
+	switch(q){
+		case q(str l, str id, Type t): {
+			qHtml = div(p(l), input(type2html(t), id(id.name)));
+			return qHtml;
+		}
+		case q(str l, str id, Type t, AExpr exp): {
+			qHtml = div(p(l), input(type2html(t), id(id.name), readonly([])));
+			return qHtml;
+		}
+		case cond(AExpr expr, list[AQuestion] questions): {
+			condHtml = div(id("if" + id.name), class("d-none"),
+        	div([question2html[q] | q <- questions]));
+			return condHtml;
+		}
+		case condElse(AExpr expr, list[AQuestion] questions1, list[AQuestion] questions2): {
+			condElseHtml = div(div(question2html(cond(expr, questions1))), 
+			div(id("else" + id.name), class("d-none"),
+			div([question2html[q] | q <- questions2])));
+			return condElseHtml;
+		}
+	};
 }
 
-str form2js(AForm f) {
-  return "";
+HTML5Attr type2html(Type t) {
+  switch (t) {
+  	case tstr(): return \type("text");
+    case tbool(): return \type("checkbox");
+    case tint(): return \type("number");
+    default: throw "Unsupported type <t>";
+  }
 }
+
+//str form2js(AForm f) {
+//  return "";
+//}
