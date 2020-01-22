@@ -4,8 +4,6 @@ import AST;
 import Resolve;
 import String;
 
-import IO;
-
 /*
  * Implement big-step semantics for QL
  */
@@ -42,17 +40,13 @@ VEnv initialEnv(AForm f) {
 // Because of out-of-order use and declaration of questions
 // we use the solve primitive in Rascal to find the fixpoint of venv.
 VEnv eval(AForm f, Input inp, VEnv venv) {
-  n = 1;
   return solve (venv) {
-    println(n);
-    n += 1;
     venv = evalOnce(f, inp, venv);
   }
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
   for (/AQuestion q := f.questions) {
-    println("<q> :\n<venv>\n");
     venv = eval(q, inp, venv);
   }
   return venv;
