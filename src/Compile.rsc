@@ -51,7 +51,7 @@ HTML5Node question2html(AQuestion q){
 			qHtml = div(p(l), input(type2html(t), id(id.name)));
 			return qHtml;
 		}
-		case q(str l, str id, Type t, AExpr exp): {
+		case cq(str l, str id, Type t, AExpr exp): {
 			qHtml = div(p(l), input(type2html(t), id(id.name), readonly([])));
 			return qHtml;
 		}
@@ -78,6 +78,49 @@ HTML5Attr type2html(Type t) {
   }
 }
 
-//str form2js(AForm f) {
-//  return "";
-//}
+str form2js(AForm f) {
+  return "";
+}
+
+str expr2js(AExpr expr) {
+  switch (expr) {
+    case ref(id(name)):
+    	return name;
+    case bval(Bool b):
+    	return "<b>";
+    case ival(Int i):
+    	return "<i>";
+    case sval(Str s):
+    	return "<s>";
+    case par(Aexpr e):
+    	return "(<expr2js(e)>)";
+    case neg(Aexpr e):
+    	return "!<expr2js(e)>";
+    case mul(Aexpr lhs, Aexpr rhs):
+    	return "(<expr2js(lhs)> * <expr2js(rhs)>)";
+    case div(Aexpr lhs, Aexpr rhs):
+		return "(<expr2js(lhs)> / <expr2js(rhs)>)";
+    case add(Aexpr lhs, Aexpr rhs):
+    	return "(<expr2js(lhs)> + <expr2js(rhs)>)";
+    case sub(Aexpr lhs, Aexpr rhs):
+    	return "(<expr2js(lhs)> - <expr2js(rhs)>)";
+    case gt(Aexpr lhs, Aexpr rhs):
+		return "(<expr2js(lhs)> \> <expr2js(rhs)>)";
+    case lt(Aexpr lhs, Aexpr rhs):
+    	return "(<expr2js(lhs)> \< <expr2js(r)>)";
+    case leq(Aexpr lhs, Aexpr rhs):
+		return "(<expr2js(lhs)> \<= <expr2js(rhs)>)";
+    case geq(Aexpr lhs, Aexpr rhs):
+		return "(<expr2js(lhs)> \>= <expr2js(rhs)>)";
+    case and(Aexpr lhs, Aexpr rhs):
+		return "(<expr2js(lhs)> && <expr2js(rhs)>)";
+    case or(Aexpr lhs, Aexpr rhs):
+    	return "(<expr2js(lhs)> || <expr2js(rhs)>)";
+    case eq(Aexpr lhs, Aexpr rhs):
+    	return "(<expr2js(lhs)> == <expr2js(rhs)>)";
+    case neq(Aexpr lhs, Aexpr rhs):
+    	return "(<expr2js(lhs)> != <expr2js(rhs)>)";
+    default:
+    	throw "Unsupported expression <e>";
+  }
+}
