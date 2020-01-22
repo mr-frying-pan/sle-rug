@@ -47,33 +47,40 @@ return
          
 HTML5Node question2html(AQuestion q){
 	switch(q){
-		case q(str l, str id, Type t): {
+		case q(str l, AId id, str t): {
 			qHtml = div(p(l), input(type2html(t), id(id.name)));
 			return qHtml;
 		}
-		case cq(str l, str id, Type t, AExpr exp): {
+		case cq(str l, AId id, str t, AExpr exp): {
 			qHtml = div(p(l), input(type2html(t), id(id.name), readonly([])));
 			return qHtml;
 		}
+		case block(list[AQuestion] questions): {
+			blockHtml = div(
+            [question2html(q) | q <- questions]
+            );
+             return blockHtml;
+		}
 		case cond(AExpr expr, list[AQuestion] questions): {
 			condHtml = div(id("if" + id.name), class("d-none"),
-        	div([question2html[q] | q <- questions]));
+        	div([question2html(q) | q <- questions]));
 			return condHtml;
 		}
 		case condElse(AExpr expr, list[AQuestion] questions1, list[AQuestion] questions2): {
 			condElseHtml = div(div(question2html(cond(expr, questions1))), 
 			div(id("else" + id.name), class("d-none"),
-			div([question2html[q] | q <- questions2])));
+			div([question2html(q) | q <- questions2])));
 			return condElseHtml;
 		}
-	};
+		default: return div();
+	}
 }
 
-HTML5Attr type2html(Type t) {
+HTML5Attr type2html(str t) {
   switch (t) {
-  	case tstr(): return \type("text");
-    case tbool(): return \type("checkbox");
-    case tint(): return \type("number");
+  	case String(): return \type("text");
+    case Boolean(): return \type("checkbox");
+    case Integer(): return \type("number");
     default: throw "Unsupported type <t>";
   }
 }
