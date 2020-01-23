@@ -10,27 +10,55 @@ extend lang::std::Id;
 start syntax Form 
   = "form" Id "{" Question* "}"; 
 
-// TODO: question, computed question, block, if-then-else, if-then
 syntax Question
-  = 
-  ; 
+  = Str Id ":" Type "=" Expr
+  | Str Id ":" Type 
+  | Block
+  | "if" "(" Expr ")" Block
+  | "if" "(" Expr ")" Block "else" Block
+  ;
+  
+syntax Block
+  = "{" Question* "}";
 
-// TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
-// Think about disambiguation using priorities and associativity
-// and use C/Java style precedence rules (look it up on the internet)
 syntax Expr 
-  = Id \ "true" \ "false" // true/false are reserved keywords.
+  = Id \ Kwds
+  | Int
+  | Bool
+  | Str
+  | "(" Expr ")"
+  > "!" Expr
+  > left
+  ( Expr "*" Expr
+  | Expr "/" Expr
+  )
+  > left 
+  ( Expr "+" Expr
+  | Expr "-" Expr
+  )
+  > left
+  ( Expr "\>" Expr
+  | Expr "\<" Expr
+  | Expr "\<=" Expr
+  | Expr "\>=" Expr
+  )
+  > left Expr "&&" Expr
+  > left Expr "||" Expr
+  > left
+  ( Expr "==" Expr
+  | Expr "!=" Expr
+  )
   ;
   
 syntax Type
-  = ;  
+  = "integer" | "str" | "boolean";
   
-lexical Str = ;
+lexical Str = "\"" ![\"]* "\"";
 
 lexical Int 
-  = ;
+  = "-"?[1-9][0-9]*
+  | [0];
 
-lexical Bool = ;
+lexical Bool = "true" | "false";
 
-
-
+keyword Kwds = "if" | "else" | "true" | "false";
