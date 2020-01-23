@@ -4,6 +4,7 @@ import Syntax;
 import AST;
 
 import ParseTree;
+import String;
 
 /*
  * Implement a mapping from concrete syntax trees (CSTs) to abstract syntax trees (ASTs)
@@ -29,9 +30,7 @@ AForm cst2ast((Form)`form <Id x> { <Question* qs> }`) {
 AQuestion cst2ast(Question question) {
   switch(question) {
   	case (Question)`<Str label> <Id name> : <Type t>`:
-  		// ugly hack but only because adding quotes above produces a
-  		// Syntax error: concrete syntax fragment
-  		// and I do not know what is wrong with that
+        // It'd be nice to be able to extract it using concrete syntax but it does not work that way
 		return q(replaceLast(replaceFirst("<label>", "\"", ""), "\"", ""), id("<name>"), "<t>", src = name@\loc);
   	case (Question)`<Str label> <Id name> : <Type t> = <Expr e>`:
   		// same as above
