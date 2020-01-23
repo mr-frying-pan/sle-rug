@@ -30,9 +30,9 @@ data Input
 VEnv initialEnv(AForm f) {
   VEnv initVenv = ();
   visit (f) {
-  case q(str _, id(str name, src=loc l), "integer"): initVenv += (name : vint(0));
-  case q(str _, id(str name, src=loc l), "boolean"): initVenv += (name : vbool(false));
-  case q(str _, id(str name, src=loc l), "str"): initVenv += (name : vstr(""));
+  case q(str _, id(str name), "integer"): initVenv += (name : vint(0));
+  case q(str _, id(str name), "boolean"): initVenv += (name : vbool(false));
+  case q(str _, id(str name), "str"): initVenv += (name : vstr(""));
   }
   return initVenv;
 }
@@ -87,7 +87,7 @@ VEnv eval(AQuestion q, Input inp, VEnv venv) {
     }
     default: throw "Unsupported expression <q>";
     }
-  return ();
+  return venv;
 }
 
 Value eval(AExpr e, VEnv venv) {
@@ -95,7 +95,7 @@ Value eval(AExpr e, VEnv venv) {
     case ival(str n): return vint(toInt(n));
     case bval(str b): return vbool(b == "true");
     case sval(str s): return vstr(s);
-    case ref(AId x): return venv[x.name];
+    case ref(id(str name)): return venv[name];
     case neg(AExpr e): return vbool(!eval(e, venv).b);
     case mul(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n * eval(rhs, venv).n);
     case div(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n / eval(rhs, venv).n);
