@@ -45,7 +45,7 @@ void initql(loc file) {
     venv = eval(ast, inp2, venv);
     */
     println("Compiling...");
-    compile(ast);
+    compile(flat);
   } else {
     println("Failed to compile, file contains errors.");
     println(msgs);

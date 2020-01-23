@@ -144,7 +144,15 @@ str defaultValue(str t) {
 str form2js(AForm f) {
   int condNumber = 0;
   str js =
-  "window.onload = function () {
+  "function updateExprs() {
+  '  var evt = new CustomEvent(\'update\');
+  '  [].forEach.call( document.getElementsByTagName(\"*\"),
+  '    function(elem) {
+  '      elem.dispatchEvent(evt, {target: elem});
+  '    });
+  '}
+  '
+  'window.onload = function () {
   '  conds = document.getElementsByClassName(\'cond\');
   '  computedQs = document.getElementsByClassName(\'compQs\');
   '  for(var c of conds) {
@@ -153,15 +161,9 @@ str form2js(AForm f) {
   '  for(var c of computedQs) {
   '    c.addEventListener(\'update\', window[\"fun_\" + c.id], false);
   '  }
-  '}
-  '
-  'function updateExprs() {
-  '  var evt = new CustomEvent(\'update\');
-  '  [].forEach.call( document.getElementsByTagName(\"*\"),
-  '    function(elem) {
-  '      elem.dispatchEvent(evt, {target: elem});
-  '    });
+  '  updateExprs();
   '}\n";
+
   top-down visit(f) {
   case q(str _, id(str name), "boolean"): {
     js +=
