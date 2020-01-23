@@ -20,114 +20,72 @@ import lang::html5::DOM; // see standard library
  */
 
 void compile(AForm f) {
-  writeFile(f.src[extension="js"].top, form2js(f));
-  writeFile(f.src[extension="html"].top, toString(form2html(f)));
+
+  //writeFile(|project://QL/src| + (f.name + ".js"), form2js(f));
+  writeFile(|project://QL/src| + (f.name + ".html"), toString(form2html(f)));
 }
 
-HTML5Node form2html(AForm f) {
-return
-	html(
-    	       head(
-        	     title(f.name), meta(charset("utf-8"), name("viewport"), content("width=device-width, initial-scale=1, shrink-to-fit=no")),
-  	             link(\rel("stylesheet"), href("https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css")),
-	 			 script(src("https://code.jquery.com/jquery-3.4.1.slim.min.js")),
-				 script(src("https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js")),
-				 script(src("https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js")),
-				 script(src(f.src[extension="js"].file)) 
- 	          ),
-  	         body(
- 	            div(
- 	              div(
- 	                [question2html(q) | q <- f.questions]
- 	              )
- 	            )
- 	          )
- 	        );
-}
+HTML5Node form2html(AForm f){
+	return
+  		html(
+  			head(
+  				script(src(f.name + ".js")),
+  				meta(charset("utf-8")),
+             	meta(name("viewport"), content("width=device-width, initial-scale=1, shrink-to-fit=no")),
          
+             	link(\rel("stylesheet"), href("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")),
+             
+             
+             	script(src("https://code.jquery.com/jquery-3.3.1.slim.min.js")),
+            	script(src("https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js")),
+             	script(src("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"))
+  				),
+  			 	body(
+  					h1(id("title"), f.name),
+  					div([question2html(q) | AQuestion q <- f.questions])
+  			 		)
+  				);
+}
+
+
 HTML5Node question2html(AQuestion q){
 	switch(q){
-		case q(str l, AId id, str t): {
-			qHtml = div(p(l), input(type2html(t), id(id.name)));
-			return qHtml;
-		}
-		case cq(str l, AId id, str t, AExpr exp): {
-			qHtml = div(p(l), input(type2html(t), id(id.name), readonly([])));
-			return qHtml;
-		}
-		case block(list[AQuestion] questions): {
-			blockHtml = div(
-            [question2html(q) | q <- questions]
-            );
-             return blockHtml;
-		}
-		case cond(AExpr expr, list[AQuestion] questions): {
-			condHtml = div(id("if" + id.name), class("d-none"),
-        	div([question2html(q) | q <- questions]));
-			return condHtml;
-		}
-		case condElse(AExpr expr, list[AQuestion] questions1, list[AQuestion] questions2): {
-			condElseHtml = div(div(question2html(cond(expr, questions1))), 
-			div(id("else" + id.name), class("d-none"),
-			div([question2html(q) | q <- questions2])));
-			return condElseHtml;
-		}
+		case q(str l, AId aid, str t): 
+			return p(l, input(type2html(t), id(aid.name)));
+		case cq(str l, AId aid, str t, AExpr exp):
+			return p(l, input(type2html(t), id(aid.name), readonly("readonly")));
+		case cond(AExpr expr, list[AQuestion] questions):
+			return div(id("if" + refId(expr)), 
+					html5attr("style", "display:none"),
+					question2html(block(questions))
+				);
+		case condElse(AExpr expr, list[AQuestion] questions1, list[AQuestion] questions2): 
+			return div(id("else" + refId(expr)),
+						html5attr("style", "display:block"),
+						question2html(block(questions1)),
+						question2html(block(questions2))
+				);
+		case block(list[AQuestion] questions): 
+			return div([question2html(q) | q <- questions]);
 		default: return div();
 	}
 }
 
 HTML5Attr type2html(str t) {
   switch (t) {
-  	case String(): return \type("text");
-    case Boolean(): return \type("checkbox");
-    case Integer(): return \type("number");
+  	case "str": return \type("text");
+    case "boolean": return \type("checkbox");
+    case "integer": return \type("number");
     default: throw "Unsupported type <t>";
   }
 }
 
-str form2js(AForm f) {
-  return "";
-}
-
-str expr2js(AExpr expr) {
-  switch (expr) {
-    case ref(id(name)):
-    	return name;
-    case bval(Bool b):
-    	return "<b>";
-    case ival(Int i):
-    	return "<i>";
-    case sval(Str s):
-    	return "<s>";
-    case par(Aexpr e):
-    	return "(<expr2js(e)>)";
-    case neg(Aexpr e):
-    	return "!<expr2js(e)>";
-    case mul(Aexpr lhs, Aexpr rhs):
-    	return "(<expr2js(lhs)> * <expr2js(rhs)>)";
-    case div(Aexpr lhs, Aexpr rhs):
-		return "(<expr2js(lhs)> / <expr2js(rhs)>)";
-    case add(Aexpr lhs, Aexpr rhs):
-    	return "(<expr2js(lhs)> + <expr2js(rhs)>)";
-    case sub(Aexpr lhs, Aexpr rhs):
-    	return "(<expr2js(lhs)> - <expr2js(rhs)>)";
-    case gt(Aexpr lhs, Aexpr rhs):
-		return "(<expr2js(lhs)> \> <expr2js(rhs)>)";
-    case lt(Aexpr lhs, Aexpr rhs):
-    	return "(<expr2js(lhs)> \< <expr2js(r)>)";
-    case leq(Aexpr lhs, Aexpr rhs):
-		return "(<expr2js(lhs)> \<= <expr2js(rhs)>)";
-    case geq(Aexpr lhs, Aexpr rhs):
-		return "(<expr2js(lhs)> \>= <expr2js(rhs)>)";
-    case and(Aexpr lhs, Aexpr rhs):
-		return "(<expr2js(lhs)> && <expr2js(rhs)>)";
-    case or(Aexpr lhs, Aexpr rhs):
-    	return "(<expr2js(lhs)> || <expr2js(rhs)>)";
-    case eq(Aexpr lhs, Aexpr rhs):
-    	return "(<expr2js(lhs)> == <expr2js(rhs)>)";
-    case neq(Aexpr lhs, Aexpr rhs):
-    	return "(<expr2js(lhs)> != <expr2js(rhs)>)";
-    default:
-    	throw "Unsupported expression <e>";
-  }
+str refId(AExpr expr){
+str name = "";
+	visit(expr) {
+		case ref(AId id): { 
+		name = id.name;
+	}
+	}
+	return name;
 }
