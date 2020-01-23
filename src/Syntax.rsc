@@ -56,7 +56,8 @@ syntax Type
 lexical Str = "\"" ![\"]* "\"";
 
 lexical Int 
-  = "-"?[1-9][0-9]*;
+  = "-"?[1-9][0-9]*
+  | [0];
 
 lexical Bool = "true" | "false";
 
