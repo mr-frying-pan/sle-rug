@@ -4,4 +4,4 @@
 /examples/*.js
 /compiled/*
 **/*~
-
+**/*.log

@@ -30,12 +30,8 @@ HTML5Node form2html(AForm f){
 	return
   		html(
   			head(
-  			    meta(charset("utf-8")),
-  				script(src(f.name + ".js"))
-             	//link(\rel("stylesheet"), href("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")),
-                //script(src("https://code.jquery.com/jquery-3.3.1.slim.min.js")),
-            	//script(src("https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js")),
-             	//script(src("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"))
+  			     meta(charset("utf-8")),
+  				 script(src(f.name + ".js"))
   				),
   			 	body(
                      [h1(id("title"), f.name)] +

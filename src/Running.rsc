@@ -22,7 +22,7 @@ alias CompileResult = tuple[
   set[Message] msgs
 ];
 
-void initql(loc file) {
+CompileResult initql(loc file) {
   pt = parse(#start[Form], file);
 
   ast = cst2ast(pt);
@@ -52,5 +52,11 @@ void initql(loc file) {
   }
 
   CompileResult result = <pt, ast, flat, res, env, msgs>;
-  //return <pt, ast, flat, res, env, msgs>;
+  return <pt, ast, flat, res, env, msgs>;
+}
+
+void make(loc file, loc out = |project://QL/build.log|) {
+  res = initql(file);
+  writeFile(out, "<res>");
+  println(res);
 }
